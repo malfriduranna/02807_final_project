@@ -48,7 +48,7 @@ def log(message):
     logging.info(message)
 
 log("Loading data...")
-file_path = "../data/fake reviews dataset.csv"
+file_path = "../../data/akereviewsdataset.csv"
 df = pd.read_csv(file_path)
 log("Data loaded successfully.")
 
@@ -73,7 +73,7 @@ log("Text preprocessing complete.")
 
 def add_tfidf_features(df):
     log("Adding TF-IDF features...")
-    vectorizer = TfidfVectorizer(max_features=1000)  # Adjust max_features as needed
+    vectorizer = TfidfVectorizer(max_features=100)  # Adjust max_features as needed
     tfidf_matrix = vectorizer.fit_transform(df['text'])
     tfidf_df = pd.DataFrame(tfidf_matrix.toarray(), columns=vectorizer.get_feature_names_out())
     tfidf_df.index = df.index  # Ensure indices align
@@ -125,14 +125,29 @@ log("Adding features to the dataset...")
 add_features(df)
 log("Feature addition complete.")
 
+
+def reduce_features_with_pca(df):
+    log("Reducing features with PCA...")
+    features = df.select_dtypes(include=[np.number]).drop(columns=['label_binary'], errors='ignore')
+    scaler = StandardScaler()
+    features_scaled = scaler.fit_transform(features)
+    
+    pca = PCA(n_components=0.95)  # Retain 95% of variance
+    reduced_features = pca.fit_transform(features_scaled)
+    log(f"PCA reduced dimensions to {reduced_features.shape[1]}")
+    return reduced_features
+
 def perform_clustering(df, cluster_range):
     log("Starting clustering process...")
     results = []
     for n_clusters in cluster_range:
         log(f"Clustering with {n_clusters} clusters...")
-        features = df.drop(columns=["label_binary", "category", "label", "text", "SENTIMENT_CATEGORY"])
+        # features = df.drop(columns=["label_binary", "category", "label", "text", "SENTIMENT_CATEGORY"])
+
+        reduced_features = reduce_features_with_pca(df)
         kmeans = KMeans(n_clusters=n_clusters, random_state=42)
-        cluster_labels = kmeans.fit_predict(features)
+        cluster_labels = kmeans.fit_predict(reduced_features)
+        
         df['cluster_label'] = cluster_labels
         cluster_summary = df.groupby('cluster_label')['label_binary'].value_counts(normalize=True).unstack()
         log(f"Clustering with {n_clusters} clusters completed.")
@@ -246,7 +261,7 @@ log("Performing clustering...")
 cluster_results = perform_clustering(df, cluster_range)
 
 log("Saving results to CSV...")
-output_path = "../data/processed_reviews.csv"
+output_path = "../../data/processed_reviews.csv"
 df.to_csv(output_path, index=False)
 log(f"Results saved to {output_path}.")
 log("Script completed successfully.")
