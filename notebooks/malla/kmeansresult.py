@@ -40,8 +40,8 @@ def perform_clustering(df, cluster_range):
 
 # Script Entry Point
 if __name__ == "__main__":
-    input_csv = "../data/processed_reviews.csv"
-    output_csv = "../data/clustered_reviews.csv"
+    input_csv = "../../data/processed_reviews.csv"
+    output_csv = "../../data/clustered_reviews.csv"
     log(f"Reading data from {input_csv}...")
 
     try:

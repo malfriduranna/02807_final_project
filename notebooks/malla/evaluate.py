@@ -66,8 +66,8 @@ def evaluate_clustering(df, cluster_columns):
 
 # Script Entry Point
 if __name__ == "__main__":
-    input_csv = "../data/clustered_reviews.csv"
-    output_csv = "../data/clustering_evaluation_results_with_counts.csv"
+    input_csv = "../../data/clustered_reviews.csv"
+    output_csv = "../../data/clustering_evaluation_results_with_counts.csv"
     log(f"Reading clustered data from {input_csv}...")
 
     try:
